@@ -1,0 +1,18 @@
+<h1> Events by user </h1>
+<div>
+    <ul>
+        <% @events.find_each do |event| %>
+            <li> <%= link_to event.event, event %> </li>
+        <% end %>
+    </ul>
+</div>
+
+<h1> Event attendee </h1>
+<div>
+    <ul>
+        <% @event_attended.find_each do |attendance| %>
+            <% event = Event.find(attendance.attended_event_id) %>
+            <li> <%= link_to event.event, event %> </li>
+        <% end %>
+    </ul>
+</div>

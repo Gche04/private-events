@@ -1,0 +1,23 @@
+<h1>Events</h1>
+
+<div>
+  <% unless user_signed_in? %>
+    <%= link_to "sign in", new_user_session_path %><br>
+    <%= link_to "sign up", new_user_registration_path %><br>
+  <%end%>
+
+  <% if user_signed_in? %>
+    <%= link_to "Sign out", destroy_user_session_path, data: { turbo_method: :delete } %><br>
+    <%= link_to "Edit profile", edit_user_registration_path %><br><br>
+  <%end%>
+
+  <%= link_to "New event", new_event_path %><br><br>
+</div>
+
+<% @events.each do |event| %>
+  <div><%= link_to event.event, event %></div>
+
+  <% user = User.find(event.user_id) %>
+  <%= link_to user.user_name, user %><br><br>
+<% end %>
+

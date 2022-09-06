@@ -1,0 +1,63 @@
+<h1> Event details </h1>
+
+<div>
+    <div> <%= @event.event %> </div>
+    <div> <%= @event.location %> </div>
+    <div> <%= @event.event_date %> </div>
+    <div> <%= @event.event_time %> </div><br>
+</div>
+
+
+<h3> event attendees </h3>
+    <ul>
+        <% @attendance.find_each do |attender| %>
+            <li><%= attender.attendee.user_name %></li>
+        <% end %>
+    </ul>
+
+
+<% if user_signed_in? %>
+    <% if current_user.id == @event.user_id %>
+        <%= link_to "Edit event", edit_event_path %><br>
+    <%end%>
+
+    <% unless current_user.id == @event.user_id %>
+
+        <% chk = EventAttending.where(attendee_id: current_user.id) %>
+        <% already_attending = false %>
+        <% id = 0 %>
+
+        <% chk.find_each do |obj| %>
+            <% if obj.attended_event_id == @event.id %>
+                <% already_attending = true %>
+                <% id = obj.id %>
+            <% end %>
+        <% end %>
+          
+        <% if already_attending %>
+
+            <div>
+                <div> dont want to attend this event anymore </div>
+                <!--<%= link_to "no more attending", event_attending_path %>
+                <a href="/@event_attendings/<%= id %>">
+                    <%= "no more attending" %>
+                </a>-->
+                
+                <%= form_tag event_attending_path(id), method: "delete" do %>
+                    <%= submit_tag("not attending") %>
+                <% end %>
+            </div>
+
+        <% end %>
+
+        <% unless already_attending %>
+            <%= form_tag("/event_attendings", method: "post") do %>
+                <%= hidden_field_tag(:attended_event_id, @event.id) %>
+                <%= hidden_field_tag(:attendee_id, current_user.id) %>
+
+                <%= submit_tag("attend event") %>
+            <% end %>
+        <% end %>
+
+    <%end%>
+<%end%>
