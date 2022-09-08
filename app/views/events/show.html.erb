@@ -1,62 +1,109 @@
+
+<ul>
+    <li> <%= link_to "events", events_url %> </li>
+    <li> <%= link_to "New event", new_event_path %></li>
+
+    <% unless user_signed_in? %>
+        <li> <%= link_to "sign in", new_user_session_path %> </li>
+        <li> <%= link_to "sign up", new_user_registration_path %> </li>
+    <%end%>
+
+    <% if user_signed_in? %>
+       <li> <%= link_to "Sign out", destroy_user_session_path, data: { turbo_method: :delete } %></li>
+       <li> <%= link_to "Edit profile", edit_user_registration_path %></li>
+    <%end%>
+</ul>
+
 <h1> Event details </h1>
 
 <div>
     <div> <%= @event.event %> </div>
     <div> <%= @event.location %> </div>
     <div> <%= @event.event_date %> </div>
-    <div> <%= @event.event_time %> </div><br>
+    <div> <%= @event.event_time.strftime("%I:%m %p") %> </div><br>
 </div>
 
 
 <h3> event attendees </h3>
     <ul>
         <% @attendance.find_each do |attender| %>
-            <li><%= attender.attendee.user_name %></li>
+            <li><%= link_to attender.attendee.user_name, user_path %></li>
         <% end %>
     </ul>
 
 
 <% if user_signed_in? %>
     <% if current_user.id == @event.user_id %>
-        <%= link_to "Edit event", edit_event_path %><br>
+        <% unless @event.event_date.past? %>
+            <div>
+                <% invited = Invitation.where(inviter_id: current_user.id, event_invite_id: @event.id) %>
+
+                <h4> invited user </h4>
+                <% unless invited.empty? %>
+                <ul>
+                    <% invited.find_each do |usr| %>
+                        <li>
+                            <div>
+                                <%= link_to usr.invitee.user_name, user_path(usr.invitee_id) %>
+                                    <%= form_tag invitation_path(usr.id), method: "delete" do %>
+                                    <%= submit_tag("Uninvite") %>
+                                <% end %>
+                            </div>
+                        </li>
+                    <% end %>
+                </ul>
+                <% end %>
+
+            <h4> Invite a user <h4>
+                <%= form_tag("/invitations", method: "post") do %>
+                    <%= hidden_field_tag(:inviter_id, current_user.id) %>
+                    <%= hidden_field_tag(:event_invite_id, @event.id) %>
+
+                    <%= label_tag 'invitee', 'user name' %>
+                    <%= text_field_tag('invitee') %>
+
+                    <%= submit_tag("invite") %>
+                <% end %>
+            </div>
+        <% end %>
+        
+
+        <div>
+            <%= link_to "Edit event", edit_event_path %><br>
+            <%= button_to "Delete event", event_path(@event.id), method: :delete %><br>
+        </div>
     <%end%>
 
     <% unless current_user.id == @event.user_id %>
 
-        <% chk = EventAttending.where(attendee_id: current_user.id) %>
+        <% chk = EventAttending.where(attendee_id: current_user.id, attended_event_id: @event.id) %>
         <% already_attending = false %>
         <% id = 0 %>
-
-        <% chk.find_each do |obj| %>
-            <% if obj.attended_event_id == @event.id %>
-                <% already_attending = true %>
-                <% id = obj.id %>
-            <% end %>
+        
+        <% unless chk.empty? %>
+            <% already_attending = true %>
+            <% id = chk[0].id %>
         <% end %>
-          
+        
         <% if already_attending %>
-
             <div>
                 <div> dont want to attend this event anymore </div>
-                <!--<%= link_to "no more attending", event_attending_path %>
-                <a href="/@event_attendings/<%= id %>">
-                    <%= "no more attending" %>
-                </a>-->
-                
+
                 <%= form_tag event_attending_path(id), method: "delete" do %>
                     <%= submit_tag("not attending") %>
                 <% end %>
             </div>
-
         <% end %>
 
         <% unless already_attending %>
-            <%= form_tag("/event_attendings", method: "post") do %>
-                <%= hidden_field_tag(:attended_event_id, @event.id) %>
-                <%= hidden_field_tag(:attendee_id, current_user.id) %>
+            <div>
+                <%= form_tag("/event_attendings", method: "post") do %>
+                    <%= hidden_field_tag(:attended_event_id, @event.id) %>
+                    <%= hidden_field_tag(:attendee_id, current_user.id) %>
 
-                <%= submit_tag("attend event") %>
-            <% end %>
+                    <%= submit_tag("attend event") %>
+                <% end %>
+            </div>
         <% end %>
 
     <%end%>

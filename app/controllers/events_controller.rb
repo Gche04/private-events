@@ -2,7 +2,8 @@ class EventsController < ApplicationController
     before_action :login, except: [:index, :show]
 
     def index
-      @events = Event.all
+      @past_events = Event.past #Event.all
+      @upcoming_events = Event.upcoming
     end
 
     def new
@@ -31,7 +32,7 @@ class EventsController < ApplicationController
       @event = Event.find(params[:id])
 
       if @event.update(event_params)
-        redirect_to events_url
+        redirect_to event_path
       else
         render :edit, status: :unprocessable_entity
       end
@@ -40,6 +41,13 @@ class EventsController < ApplicationController
     def show
       @event = Event.find(params[:id])
       @attendance = @event.event_attendings
+    end
+
+    def destroy
+      @event = Event.find(params[:id])
+      @event.destroy
+
+      redirect_to events_url, status: :see_other
     end
     
     private
@@ -55,3 +63,9 @@ class EventsController < ApplicationController
       end
     end
 end
+
+# do final checks
+# check to clean up
+# do refractoring
+# remove comments
+# check event attending, for dependent destroy

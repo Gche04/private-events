@@ -1,5 +1,5 @@
 class EventAttendingsController < ApplicationController
-
+    before_action :login
     #def new
     #    @event_attending = EventAttending.new
     #end
@@ -12,7 +12,7 @@ class EventAttendingsController < ApplicationController
         @event_attending.attendee_id = params[:attendee_id]
 
         if @event_attending.save
-            redirect_to events_url
+            redirect_to event_path(@event_attending.attended_event_id)
         else
             render :new, status: :unprocessable_entity
         end
@@ -23,7 +23,7 @@ class EventAttendingsController < ApplicationController
         @event_attending.destroy
     
         redirect_to events_url, status: :see_other
-      end
+    end
 
     private
 
