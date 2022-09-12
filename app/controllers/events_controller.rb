@@ -2,7 +2,7 @@ class EventsController < ApplicationController
     before_action :login, except: [:index, :show]
 
     def index
-      @past_events = Event.past #Event.all
+      @past_events = Event.past
       @upcoming_events = Event.upcoming
     end
 
@@ -11,18 +11,15 @@ class EventsController < ApplicationController
     end
 
     def create
-      #@event = Event.new
-      #@user = @event.build_creator(event_params)
       @event = current_user.events.new(event_params)
   
       if @event.save
-        redirect_to events_url
+        redirect_to events_url, notice: "event created"
       else
+        flash[:error] = @event.errors.full_messages
         render :new, status: :unprocessable_entity
       end
     end
-    #@author = @book.build_author(author_number: 123,
-    #    author_name: "John Doe")
 
     def edit
       @event = Event.find(params[:id])
@@ -32,8 +29,9 @@ class EventsController < ApplicationController
       @event = Event.find(params[:id])
 
       if @event.update(event_params)
-        redirect_to event_path
+        redirect_to event_path, notice: "event edited"
       else
+        flash[:error] = @event.errors.full_messages
         render :edit, status: :unprocessable_entity
       end
     end
@@ -47,7 +45,7 @@ class EventsController < ApplicationController
       @event = Event.find(params[:id])
       @event.destroy
 
-      redirect_to events_url, status: :see_other
+      redirect_to events_url, status: :see_other, notice: "event deleted"
     end
     
     private
@@ -63,9 +61,3 @@ class EventsController < ApplicationController
       end
     end
 end
-
-# do final checks
-# check to clean up
-# do refractoring
-# remove comments
-# check event attending, for dependent destroy

@@ -7,4 +7,3 @@ class UsersController < ApplicationController
         @invites = Invitation.where(invitee_id: @user.id)
     end
 end
-#@fromcanada = User.where(:country => 'canada')

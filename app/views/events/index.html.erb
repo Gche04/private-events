@@ -1,6 +1,8 @@
 
 <div>
-  User <%= link_to current_user.user_name, user_path(current_user.id) %>
+  <% if user_signed_in? %>
+    User <%= link_to current_user.user_name, user_path(current_user.id) %>
+  <% end %>
 </div>
 
 <h1>Events</h1>
@@ -25,8 +27,7 @@
       <% @past_events.find_each do |event| %>
         <li> 
           <%= link_to event.event, event_path(event.id) %> hosted by
-          <% user = User.find(event.user_id) %>
-          <%= link_to user.user_name, user_path(user.id) %>
+          <%= link_to event.creator.user_name, user_path(event.creator.id) %>
         </li>
       <% end %>
     </ul>
@@ -38,8 +39,7 @@
       <% @upcoming_events.find_each do |event| %>
         <li> 
           <%= link_to event.event, event_path(event.id) %> hosted by
-          <% user = User.find(event.user_id) %>
-          <%= link_to user.user_name, user_path(user.id) %>
+          <%= link_to event.creator.user_name, user_path(event.creator.id) %>
         </li>
       <% end %>
     </ul>

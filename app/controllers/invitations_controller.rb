@@ -15,8 +15,9 @@ class InvitationsController < ApplicationController
         end
 
         if @invitation.save
-            redirect_to request.referrer#events_url
+            redirect_to request.referrer, notice: "invitation sent"
         else
+            flash[:error] = "check invitee user name"
             redirect_to request.referrer, status: :unprocessable_entity
         end
     end
@@ -25,7 +26,7 @@ class InvitationsController < ApplicationController
         @invitation = Invitation.find(params[:id])
         @invitation.destroy
     
-        redirect_to events_url, status: :see_other
+        redirect_to events_url, status: :see_other, notice: "invitation cancled"
       end
 
     private

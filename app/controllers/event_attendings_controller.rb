@@ -1,18 +1,13 @@
 class EventAttendingsController < ApplicationController
     before_action :login
-    #def new
-    #    @event_attending = EventAttending.new
-    #end
 
     def create
-        #event = Event.find(params[:id])
-        @event_attending = EventAttending.new#(params[:attended_event_id])
-        #@event_attending = current_user.event_attendings.new(event_attending_params)
+        @event_attending = EventAttending.new
         @event_attending.attended_event_id = params[:attended_event_id]
         @event_attending.attendee_id = params[:attendee_id]
 
         if @event_attending.save
-            redirect_to event_path(@event_attending.attended_event_id)
+            redirect_to event_path(@event_attending.attended_event_id), notice: "attending #{@event_attending.attended_event.event}"
         else
             render :new, status: :unprocessable_entity
         end
@@ -22,14 +17,10 @@ class EventAttendingsController < ApplicationController
         @event_attending = EventAttending.find(params[:id])
         @event_attending.destroy
     
-        redirect_to events_url, status: :see_other
+        redirect_to events_url, status: :see_other, notice: "not attending #{@event_attending.attended_event.event}"
     end
 
     private
-
-    #def event_attending_params
-    #    params.require(:event_attending).permit(:attended_event_id, :attendee_id)
-    #end
 
     def login
         unless user_signed_in?
